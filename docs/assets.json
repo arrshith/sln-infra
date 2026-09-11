@@ -1,0 +1,52 @@
+[
+  {
+    "file": "/images/sln-villas.webp",
+    "source": "https://admin.slninfra.com/public/property_thumbnail/6a7eb3ec663c0_ChatGPT Image Jun 2, 2026, 05_12_53 PM.png",
+    "treatment": "Resized to at most 2400 \u00d7 1800 and encoded as WebP; no generated replacements."
+  },
+  {
+    "file": "/images/palazzo.webp",
+    "source": "https://admin.slninfra.com/public/property_thumbnail/69032f35007f9_WhatsApp Image 2025-10-29 at 3.53.08 PM (1).jpeg",
+    "treatment": "Resized to at most 2400 \u00d7 1800 and encoded as WebP; no generated replacements."
+  },
+  {
+    "file": "/images/aura-5.webp",
+    "source": "https://admin.slninfra.com/public/property_galleryimg/68e4ed4d0fc7d_image 210.png",
+    "treatment": "Resized to at most 2400 \u00d7 1800 and encoded as WebP; no generated replacements."
+  },
+  {
+    "file": "/images/aura-6.webp",
+    "source": "https://admin.slninfra.com/public/property_galleryimg/68e4ed4d724e7_image 209.png",
+    "treatment": "Resized to at most 2400 \u00d7 1800 and encoded as WebP; no generated replacements."
+  },
+  {
+    "file": "/images/sundaram-palms.webp",
+    "source": "https://admin.slninfra.com/public/property_thumbnail/69032d7648696_15.jpg",
+    "treatment": "Resized to at most 2400 \u00d7 1800 and encoded as WebP; no generated replacements."
+  },
+  {
+    "file": "/images/aura-4.webp",
+    "source": "https://admin.slninfra.com/public/property_masterplans/68e3ac83ad96a_nidhi_aura_masterplan.png",
+    "treatment": "Resized to at most 2400 \u00d7 1800 and encoded as WebP; no generated replacements."
+  },
+  {
+    "file": "/images/vogue.webp",
+    "source": "https://admin.slninfra.com/public/property_thumbnail/691c65e298490_ChatGPT Image Nov 18, 2025, 05_46_22 PM.png",
+    "treatment": "Resized to at most 2400 \u00d7 1800 and encoded as WebP; no generated replacements."
+  },
+  {
+    "file": "/images/nidhi-palms.webp",
+    "source": "https://admin.slninfra.com/public/property_thumbnail/6903279e10dcf_SINGLE (1).png",
+    "treatment": "Resized to at most 2400 \u00d7 1800 and encoded as WebP; no generated replacements."
+  },
+  {
+    "file": "/images/logo.webp",
+    "source": "https://slninfra.com/public/images/logos/sininfra.png",
+    "treatment": "Resized to at most 2400 \u00d7 1800 and encoded as WebP; no generated replacements."
+  },
+  {
+    "file": "/images/nidhi-palms-mobile.webp",
+    "source": "https://admin.slninfra.com/public/property_thumbnail/6903279e10dcf_SINGLE (1).png",
+    "treatment": "Portrait crop for mobile of the same original image, matching the previous CSS crop; WebP quality 80."
+  }
+]
