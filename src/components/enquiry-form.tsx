@@ -4,17 +4,32 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { company, projects } from "@/lib/content";
 import { validateEnquiry } from "@/lib/enquiry";
+import { track, trackOnce, type LeadFormId } from "@/lib/analytics";
 import { Arrow } from "./ui";
 
+/**
+ * The one enquiry form the site uses, wherever an enquiry is made.
+ *
+ * `source` travels with the submission so a lead can be filed by where it came
+ * from — a project page, the contact page, the channel-partner page — which is
+ * what the dashboard will group by. The channel-partner variant adds the firm
+ * name and changes the copy; everything else about it is identical, because a
+ * second form implementation is a second set of validation bugs.
+ */
 export function EnquiryForm({
   initialProject,
   visit,
   deliveryEnabled,
+  source = "contact",
+  variant = "customer",
 }: {
   initialProject: string;
   visit: boolean;
   deliveryEnabled: boolean;
+  source?: LeadFormId;
+  variant?: "customer" | "channel_partner";
 }) {
+  const partner = variant === "channel_partner";
   const [state, setState] = useState<
     "idle" | "loading" | "sent" | "draft" | "error"
   >("idle");
@@ -36,6 +51,7 @@ export function EnquiryForm({
     if ("error" in result) {
       setError(result.error);
       setState("error");
+      track({ event: "lead_submit", form: source, outcome: "error" });
       showFeedback();
       return;
     }
@@ -58,11 +74,17 @@ export function EnquiryForm({
       const response = await fetch("/api/enquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(result.data),
+        body: JSON.stringify({ ...result.data, source }),
         signal: AbortSignal.timeout(12000),
       });
       if (!response.ok) throw new Error("delivery");
       setState("sent");
+      track({
+        event: "lead_submit",
+        form: source,
+        project: result.data.project || undefined,
+        outcome: "sent",
+      });
       form.reset();
     } catch {
       setError(
@@ -82,16 +104,43 @@ export function EnquiryForm({
       onChange={() => {
         if (state !== "loading") setState("idle");
       }}
+      onFocus={() =>
+        trackOnce(`form-start-${source}`, {
+          event: "lead_form_start",
+          form: source,
+        })
+      }
     >
-      <h2>{visit ? "Come see for yourself." : "Let’s find your home."}</h2>
+      <h2>
+        {partner
+          ? "Let’s work together."
+          : visit
+            ? "Come see for yourself."
+            : "Let’s find your home."}
+      </h2>
       <p className="form-intro">
-        Tell us a little about what you’re looking for.{" "}
+        {partner
+          ? "Tell us about your firm and the buyers you work with. "
+          : "Tell us a little about what you’re looking for. "}
         {deliveryEnabled
           ? "Our team will help with the next step."
           : "We’ll prepare an enquiry for you to send through your email app."}
       </p>
       <fieldset className="form-fields" disabled={state === "loading"}>
         <div className="form-grid">
+          {partner && (
+            <div className="form-field form-field-full">
+              <label htmlFor="company">Firm name *</label>
+              <input
+                id="company"
+                name="company"
+                autoComplete="organization"
+                placeholder="Your firm or agency"
+                required
+                maxLength={120}
+              />
+            </div>
+          )}
           <div className="form-field">
             <label htmlFor="name">Your name *</label>
             <input

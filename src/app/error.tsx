@@ -4,8 +4,8 @@ import Link from "next/link";
 
 export default function ErrorPage({ retry }: { retry: () => void }) {
   return (
-    <section className="container not-found">
-      <p className="eyebrow">A MOMENT PLEASE</p>
+    <section className="not-found">
+      <p className="label muted">A moment please</p>
       <h1>
         Something didn’t
         <br />

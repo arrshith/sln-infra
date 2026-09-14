@@ -7,8 +7,13 @@ import { POST } from "../src/app/api/enquiry/route";
 const routes = [
   "/",
   "/projects",
+  "/projects/completed",
+  "/projects/ongoing",
+  "/projects/upcoming",
   "/about",
   "/contact",
+  "/careers",
+  "/blog",
   "/privacy",
   "/disclaimer",
   ...projects.map((p) => `/projects/${p.slug}`),
@@ -145,9 +150,12 @@ test("main page types have no automated WCAG A/AA violations", async ({
     for (const route of [
       "/",
       "/projects",
+      "/projects/ongoing",
       "/projects/nidhi-aura",
       "/about",
       "/contact",
+      "/careers",
+      "/blog",
     ]) {
       await page.goto(route);
       await page.evaluate(() => document.fonts.ready);
@@ -235,4 +243,204 @@ test("sitemap, legacy redirects, real images, and missing pages behave correctly
     308,
   );
   expect((await request.get("/projects/no-such-project")).status()).toBe(404);
+});
+
+test("stage listings render honestly before SLN assigns stages", async ({
+  page,
+}) => {
+  // No project carries a stage yet, so each stage route must say that plainly
+  // rather than showing an empty grid or, worse, guessing.
+  const staged = projects.filter((p) => p.stage);
+
+  for (const stage of ["completed", "ongoing", "upcoming"] as const) {
+    await page.goto(`/projects/${stage}`);
+    await expect(page.locator("main h1")).toHaveCount(1);
+
+    const expected = projects.filter((p) => p.stage === stage);
+    await expect(page.locator(".projects-grid article")).toHaveCount(
+      expected.length,
+    );
+
+    if (expected.length === 0) {
+      await expect(page.locator(".stage-empty")).toBeVisible();
+      // The route still offers a way onward.
+      await expect(
+        page.getByRole("link", { name: /View all projects/ }),
+      ).toBeVisible();
+    }
+  }
+
+  // The counter next to an unassigned stage reads as unknown, not as zero.
+  await page.goto("/projects");
+  const ongoing = page.getByRole("link", { name: /Ongoing/ });
+  await expect(ongoing).toContainText(staged.length ? /\d/ : "—");
+  await expect(page.locator(".projects-grid article")).toHaveCount(
+    projects.length,
+  );
+});
+
+test("EMI calculator computes a correct reducing-balance instalment", async ({
+  page,
+}) => {
+  await page.goto("/projects/nidhi-aura#emi");
+  const figure = page.locator(".emi-figure");
+  await expect(figure).toBeVisible();
+
+  // Read the calculator's own inputs, then check the displayed instalment
+  // against the standard formula computed independently here.
+  const inputs = await page.evaluate(() => {
+    const ranges = Array.from(
+      document.querySelectorAll<HTMLInputElement>(".emi-field input"),
+    ).map((input) => Number(input.value));
+    const [price, downPct, rate, tenure] = ranges;
+    return { price, downPct, rate, tenure };
+  });
+
+  const principal =
+    inputs.price - Math.round((inputs.price * inputs.downPct) / 100);
+  const r = inputs.rate / 12 / 100;
+  const n = inputs.tenure * 12;
+  const expected = Math.round(
+    (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1),
+  );
+
+  const shown = Number((await figure.innerText()).replace(/[^0-9]/g, ""));
+  expect(shown).toBe(expected);
+
+  // Moving a control must move the figure.
+  await page.locator(".emi-field input").last().fill("10");
+  await expect(figure).not.toHaveText(new RegExp(`^\D*${expected}\D*$`));
+});
+
+test("a project page shows only the sections it has data for", async ({
+  page,
+}) => {
+  await page.goto("/projects/nidhi-aura");
+
+  // Nidhi Aura has a gallery, a master plan and a RERA registration, but no
+  // floor plans or connectivity data — so those sections must be absent
+  // rather than present and empty.
+  await expect(page.locator("#gallery")).toBeVisible();
+  await expect(page.locator("#masterplan")).toBeVisible();
+  await expect(page.locator("#rera")).toHaveCount(1);
+  await expect(page.locator("#plans")).toHaveCount(0);
+  await expect(page.locator("#connectivity")).toHaveCount(0);
+
+  // Section numbering stays contiguous despite the gaps.
+  const numbers = await page
+    .locator(".project-subnav nav a")
+    .evaluateAll((links) => links.length);
+  const printed = await page
+    .locator("section .label-num")
+    .evaluateAll((els) => els.map((el) => el.textContent?.trim()));
+  expect(printed.slice(0, numbers)).toEqual(
+    Array.from({ length: numbers }, (_, i) => String(i + 1).padStart(2, "0")),
+  );
+});
+
+/**
+ * The footer's closing sequence hides its own content in JavaScript and brings
+ * it back on a ScrollTrigger. That is only safe while the trigger is guaranteed
+ * to fire — if it ever does not, the site's address, phone number and legal
+ * links are invisible with nothing to reveal them.
+ *
+ * The rest of the suite runs with reduced motion, where the sequence never
+ * arms, so this is the one place that exercises it for real. Short pages are
+ * included deliberately: they have the least scroll available to reach the
+ * trigger.
+ */
+test.describe("footer closing sequence", () => {
+  test.use({ reducedMotion: "no-preference" });
+
+  test("always finishes revealing the footer, at every viewport", async ({
+    page,
+  }) => {
+    // Height is the dimension that matters here — it decides how much scroll a
+    // page has left to reach the trigger — so it varies most; width only needs
+    // the two layouts.
+    for (const height of [900, 700, 620]) {
+      for (const width of [1440, 390]) {
+        await page.setViewportSize({ width, height });
+        for (const route of ["/", "/disclaimer", "/privacy", "/careers"]) {
+          await page.goto(route);
+          const where = `${route} at ${width}x${height}`;
+
+          // The scroll happens inside the poll rather than once before it. The
+          // homepage's pinned sections only add their spacing after they have
+          // measured, so a single scroll-to-bottom taken too early lands short
+          // and the footer drifts back below the fold as the document grows.
+          await expect
+            .poll(
+              () =>
+                page.evaluate(() => {
+                  window.scrollTo(0, document.documentElement.scrollHeight);
+                  const opacity = (selector: string) => {
+                    const el = document.querySelector(selector);
+                    return el ? getComputedStyle(el).opacity : "missing";
+                  };
+                  return {
+                    column: opacity(".footer-col"),
+                    legal: opacity(".footer-bottom > *"),
+                    // Fully uncovered, not left mid-wipe. Matched from the
+                    // start of the string, because "inset(100% 0px 0px)"
+                    // contains the substring "0%" as well.
+                    wordmark: /^(none|inset\(0(%|px))/.test(
+                      getComputedStyle(
+                        document.querySelector(".footer-wordmark")!,
+                      ).clipPath,
+                    ),
+                  };
+                }),
+              { message: where, timeout: 10000 },
+            )
+            .toEqual({ column: "1", legal: "1", wordmark: true });
+
+          await expect(
+            page.locator(".footer-col a").first(),
+            where,
+          ).toBeVisible();
+        }
+      }
+    }
+  });
+
+  test("focusing a footer link makes it visible immediately", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/disclaimer");
+
+    const column = page.locator(".footer-col").first();
+    // Wait for hydration to actually arm the sequence, otherwise a slow load
+    // leaves the footer untouched and the test passes without proving
+    // anything.
+    await expect
+      .poll(() => column.evaluate((el) => getComputedStyle(el).opacity))
+      .toBe("0");
+
+    const link = page.locator(".footer-col a").first();
+    // Focus arrives while the columns are still transparent.
+    await link.focus();
+
+    // No waiting for the timeline — focus is expected to land it at once.
+    expect(await link.evaluate((el) => getComputedStyle(el).opacity)).not.toBe(
+      "0",
+    );
+    expect(await column.evaluate((el) => getComputedStyle(el).opacity)).toBe(
+      "1",
+    );
+  });
+
+  test("respects reduced motion by never hiding the footer at all", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/", { waitUntil: "networkidle" });
+    expect(
+      await page
+        .locator(".footer-col")
+        .first()
+        .evaluate((el) => getComputedStyle(el).opacity),
+    ).toBe("1");
+  });
 });

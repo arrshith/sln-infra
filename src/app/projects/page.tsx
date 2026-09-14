@@ -1,5 +1,7 @@
 import { ContactCTA } from "@/components/ui";
-import { ProjectFilter } from "@/components/project-filter";
+import { Masthead } from "@/components/masthead";
+import { ProjectListing } from "@/components/project/project-listing";
+import { projects } from "@/lib/content";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata = pageMetadata(
@@ -11,31 +13,28 @@ export const metadata = pageMetadata(
 export default function ProjectsPage() {
   return (
     <>
-      <section className="page-intro container">
-        <p className="eyebrow">OUR PORTFOLIO / BENGALURU & HYDERABAD</p>
-        <div className="page-intro-grid">
-          <h1>
+      <Masthead
+        index="01"
+        section="Portfolio"
+        title={
+          <>
             Different places.
             <br />
             The same <em>feeling.</em>
-          </h1>
-          <p>
-            Places with a sense of purpose.
-            <br />
-            Homes with a sense of belonging.
-            <br />
+          </>
+        }
+        lede={
+          <>
+            Places with a sense of purpose. Homes with a sense of belonging.
             Find the community that feels like you.
-          </p>
-        </div>
-      </section>
-      <section
-        className="container portfolio-section"
-        aria-label="Project portfolio"
-      >
-        <ProjectFilter />
+          </>
+        }
+      />
+      <section className="portfolio-section" aria-label="Project portfolio">
+        <ProjectListing items={projects} />
         <p className="image-disclaimer">
-          Project imagery includes architectural visualisations. Contact our
-          team for current availability and specifications.
+          Project imagery includes architectural visualisations. Contact our team
+          for current availability and specifications.
         </p>
       </section>
       <ContactCTA />

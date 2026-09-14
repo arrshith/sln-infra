@@ -1,4 +1,6 @@
 import { validateEnquiry } from "@/lib/enquiry";
+import { recordLead } from "@/lib/leads";
+import type { LeadSource } from "@/lib/leads";
 
 export async function POST(request: Request) {
   const origin = request.headers.get("origin");
@@ -33,6 +35,17 @@ export async function POST(request: Request) {
   const result = validateEnquiry(input);
   if ("error" in result)
     return Response.json({ error: result.error }, { status: 400 });
+
+  // Build the lead first: normalisation and duplicate detection happen whether
+  // or not a store is configured, so the shape reaching the webhook is already
+  // the shape the eventual database will hold. With no adapter registered this
+  // records nothing and reports `persisted: false` — see lib/leads/repository.
+  const source = pickSource(input);
+  const outcome = await recordLead(result.data, {
+    source,
+    metadata: { origin },
+  });
+
   const endpoint = process.env.ENQUIRY_WEBHOOK_URL;
   const secret = process.env.ENQUIRY_WEBHOOK_SECRET;
   if (!endpoint || !secret)
@@ -49,8 +62,18 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         ...result.data,
-        receivedAt: new Date().toISOString(),
+        receivedAt: outcome.lead.createdAt,
         source: "sln-infra-website",
+        // Lead context, so the receiving system can file it the way the
+        // eventual dashboard will: which form, which project, and whether we
+        // already hold an enquiry matching it.
+        lead: {
+          id: outcome.lead.id,
+          formSource: outcome.lead.source,
+          project: outcome.lead.project ?? null,
+          duplicate: outcome.duplicate,
+          persisted: outcome.persisted,
+        },
       }),
       signal: AbortSignal.timeout(8000),
       redirect: "error",
@@ -66,4 +89,24 @@ export async function POST(request: Request) {
       { status: 502 },
     );
   }
+}
+
+/**
+ * Which form an enquiry came from. Supplied by the client as a plain hint and
+ * checked against the known set — an unrecognised value is filed as a contact
+ * enquiry rather than trusted into the record.
+ */
+function pickSource(input: unknown): LeadSource {
+  const allowed: LeadSource[] = [
+    "homepage",
+    "project",
+    "contact",
+    "channel_partner",
+    "career",
+    "whatsapp",
+  ];
+  const value = (input as { source?: unknown })?.source;
+  return allowed.includes(value as LeadSource)
+    ? (value as LeadSource)
+    : "contact";
 }

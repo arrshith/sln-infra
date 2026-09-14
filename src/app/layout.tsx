@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/ui";
+import { Cursor } from "@/components/cursor";
+import { PageTransition } from "@/components/page-transition";
+import { SmoothScroll } from "@/components/motion/smooth-scroll";
+import { WhatsAppCta } from "@/components/whatsapp";
+import { Analytics } from "@/components/analytics";
 import { company } from "@/lib/content";
 import { siteUrl } from "@/lib/metadata";
 import "./globals.css";
@@ -69,11 +74,16 @@ export default function RootLayout({
         <a className="skip-link" href="#main">
           Skip to content
         </a>
+        <SmoothScroll />
         <Navigation />
         <main id="main" tabIndex={-1}>
           {children}
         </main>
         <Footer />
+        <PageTransition />
+        <Cursor />
+        <WhatsAppCta />
+        <Analytics />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

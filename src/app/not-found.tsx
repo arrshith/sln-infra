@@ -2,8 +2,8 @@ import { TextLink } from "@/components/ui";
 
 export default function NotFound() {
   return (
-    <section className="container not-found">
-      <p className="eyebrow">404 / A DIFFERENT ADDRESS</p>
+    <section className="not-found">
+      <p className="label muted">404 / A different address</p>
       <h1>
         Let’s get you
         <br />

@@ -8,6 +8,8 @@ export type Enquiry = {
   message: string;
   consent: boolean;
   website: string;
+  /** Firm name. Channel-partner enquiries carry it; customer enquiries do not. */
+  company?: string;
 };
 
 export function validateEnquiry(
@@ -27,7 +29,13 @@ export function validateEnquiry(
     if (typeof input[field] !== "string")
       return { error: "Please complete the required fields." };
   }
+  const company =
+    typeof input.company === "string" ? input.company.trim() : "";
+  if (company.length > 120 || /[\r\n]/.test(company))
+    return { error: "Enter your firm's name, up to 120 characters." };
+
   const data: Enquiry = {
+    ...(company ? { company } : {}),
     name: (input.name as string).trim(),
     phone: (input.phone as string).trim(),
     email: (input.email as string).trim(),

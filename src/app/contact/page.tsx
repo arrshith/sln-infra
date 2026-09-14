@@ -1,5 +1,6 @@
 import { EnquiryForm } from "@/components/enquiry-form";
 import { Arrow } from "@/components/ui";
+import { Masthead } from "@/components/masthead";
 import { company, projects } from "@/lib/content";
 import { pageMetadata } from "@/lib/metadata";
 
@@ -21,42 +22,42 @@ export default async function ContactPage({
     : "";
   return (
     <div className="contact-page">
-      <section className="page-intro container">
-        <p className="eyebrow">LET’S START A CONVERSATION</p>
-        <div className="page-intro-grid">
-          <h1>
+      <Masthead
+        index="01"
+        section="Let’s start a conversation"
+        title={
+          <>
             Your next chapter
             <br />
             <em>starts here.</em>
-          </h1>
-          <p>
-            A question. A conversation. A visit.
-            <br />
-            However you’d like to begin,
-            <br />
+          </>
+        }
+        lede={
+          <>
+            A question. A conversation. A visit. However you’d like to begin,
             we’re here to help.
-          </p>
-        </div>
-      </section>
-      <div className="container contact-grid">
+          </>
+        }
+      />
+      <div className="contact-grid">
         <section
           className="contact-details"
           aria-label="SLN Infra contact information"
         >
           <div>
-            <p className="eyebrow">GIVE US A CALL</p>
+            <p className="label">Give us a call</p>
             <a className="contact-large-link" href={company.phoneHref}>
               {company.phone}
             </a>
           </div>
           <div>
-            <p className="eyebrow">WRITE TO US</p>
+            <p className="label">Write to us</p>
             <a className="contact-large-link" href={`mailto:${company.email}`}>
               {company.email}
             </a>
           </div>
           <div>
-            <p className="eyebrow">VISIT OUR OFFICE</p>
+            <p className="label">Visit our office</p>
             <p>{company.address}</p>
             <a
               className="text-link"
@@ -65,6 +66,15 @@ export default async function ContactPage({
               rel="noopener noreferrer"
             >
               Get directions <Arrow diagonal />
+            </a>
+          </div>
+          <div>
+            <p className="label">Channel partners</p>
+            <p>
+              Firms representing buyers can register with our sales team.
+            </p>
+            <a className="text-link" href="/channel-partners">
+              Partner with SLN Infra <Arrow diagonal />
             </a>
           </div>
           <div className="contact-map">
@@ -88,6 +98,7 @@ export default async function ContactPage({
         <EnquiryForm
           initialProject={initialProject}
           visit={query.intent === "visit"}
+          source="contact"
           deliveryEnabled={Boolean(
             process.env.ENQUIRY_WEBHOOK_URL &&
             process.env.ENQUIRY_WEBHOOK_SECRET,

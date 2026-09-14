@@ -9,8 +9,8 @@ export const metadata = pageMetadata(
 
 export default function DisclaimerPage() {
   return (
-    <article className="container legal-page">
-      <p className="eyebrow">PROJECT INFORMATION</p>
+    <article className="legal-page">
+      <p className="label muted">Project information</p>
       <h1>
         A note on
         <br />
