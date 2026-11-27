@@ -22,12 +22,15 @@ export function EnquiryForm({
   deliveryEnabled,
   source = "contact",
   variant = "customer",
+  compact = false,
 }: {
   initialProject: string;
   visit: boolean;
   deliveryEnabled: boolean;
   source?: LeadFormId;
   variant?: "customer" | "channel_partner";
+  /** Drops the optional message field, for the popup. */
+  compact?: boolean;
 }) {
   const partner = variant === "channel_partner";
   const [state, setState] = useState<
@@ -190,23 +193,27 @@ export function EnquiryForm({
               ))}
             </select>
           </div>
-          <div className="form-field form-field-full">
-            <label htmlFor="message">
-              Tell us a little more <span>(optional)</span>
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              placeholder="Your ideal home, a question, or a good time to visit…"
-              rows={3}
-              maxLength={2000}
-              defaultValue={
-                visit
-                  ? "I’d like to arrange a visit. Please get in touch to find a suitable time."
-                  : ""
-              }
-            />
-          </div>
+          {/* Validation expects the field, so compact sends it empty. */}
+          {compact && <input type="hidden" name="message" value="" />}
+          {!compact && (
+            <div className="form-field form-field-full">
+              <label htmlFor="message">
+                Tell us a little more <span>(optional)</span>
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                placeholder="Your ideal home, a question, or a good time to visit…"
+                rows={3}
+                maxLength={2000}
+                defaultValue={
+                  visit
+                    ? "I’d like to arrange a visit. Please get in touch to find a suitable time."
+                    : ""
+                }
+              />
+            </div>
+          )}
         </div>
         <div className="form-honeypot" aria-hidden="true">
           <label htmlFor="website">Leave this field empty</label>

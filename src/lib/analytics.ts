@@ -38,7 +38,8 @@ export type LeadFormId =
   | "project"
   | "contact"
   | "channel_partner"
-  | "career";
+  | "career"
+  | "popup";
 
 declare global {
   interface Window {

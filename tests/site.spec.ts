@@ -4,6 +4,16 @@ import { projects } from "../src/lib/content";
 import { validateEnquiry } from "../src/lib/enquiry";
 import { POST } from "../src/app/api/enquiry/route";
 
+// The enquiry popup opens 8s into a visit; these tests are about other things.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    // Also runs in sandboxed frames (the blocked map), where storage throws.
+    try {
+      localStorage.setItem("sln-enquiry-popup", String(Date.now()));
+    } catch {}
+  });
+});
+
 const routes = [
   "/",
   "/projects",

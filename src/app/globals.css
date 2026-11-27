@@ -3902,6 +3902,168 @@ em {
 }
 
 /* ==========================================================================
+   ENQUIRY POPUP
+
+   The contact page's form panel, offered once, beside a lit elevation. On a
+   phone it becomes a sheet that rises from the thumb's edge of the screen.
+   ========================================================================== */
+
+.enquiry-popup {
+  width: min(100% - 48px, 940px);
+  max-width: none;
+  max-height: calc(100svh - 48px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: var(--paper-warm);
+  color: var(--ink);
+  box-shadow: 0 30px 90px rgba(11, 12, 7, 0.35);
+  outline: none;
+}
+
+.enquiry-popup::backdrop {
+  background: rgba(11, 12, 7, 0.62);
+  backdrop-filter: blur(4px);
+}
+
+.enquiry-popup[open] {
+  animation: popup-rise 0.8s var(--ease);
+}
+
+.enquiry-popup[open]::backdrop {
+  animation: popup-fade 0.5s ease-out;
+}
+
+@keyframes popup-rise {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+}
+
+@keyframes popup-sheet {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes popup-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.popup-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+}
+
+.popup-image {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.popup-image img {
+  object-fit: cover;
+}
+
+.popup-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(11, 12, 7, 0.8), rgba(11, 12, 7, 0) 58%);
+}
+
+.popup-image figcaption {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 1;
+  padding: clamp(24px, 3vw, 36px);
+}
+
+.popup-image .label {
+  color: color-mix(in srgb, #fff 74%, transparent);
+}
+
+.popup-image p {
+  margin-top: 12px;
+  font-family: var(--font-serif), serif;
+  font-size: clamp(1.9rem, 2.8vw, 2.6rem);
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+}
+
+.popup-image em {
+  color: var(--amber-lt);
+}
+
+.popup-body {
+  max-height: calc(100svh - 48px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(24px, 3.2vw, 40px);
+}
+
+.popup-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: clamp(20px, 2.6vw, 30px);
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.popup-top .label {
+  color: var(--accent-fg);
+}
+
+/* The menu's close control, in ink. */
+.popup-close {
+  color: var(--ink);
+}
+
+.enquiry-popup .enquiry-form {
+  padding: 0;
+  background: none;
+}
+
+@media (max-width: 1023px) {
+  .enquiry-popup .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .enquiry-popup {
+    width: 100%;
+    max-height: 92svh;
+    margin: auto 0 0;
+  }
+
+  .enquiry-popup[open] {
+    animation-name: popup-sheet;
+  }
+
+  .popup-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .popup-image {
+    display: none;
+  }
+
+  .popup-body {
+    max-height: 92svh;
+    padding: 18px var(--gutter) calc(28px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ==========================================================================
    CAREERS
    ========================================================================== */
 
@@ -4554,6 +4716,29 @@ em {
 @media (max-width: 767px) {
   :root {
     --t-label: 0.6875rem;
+  }
+
+  /* The scrolled bar is drawn in the site's amber; ink on it is 5:1. */
+  .site-header::before {
+    background: var(--amber);
+    backdrop-filter: none;
+    border-bottom-color: transparent;
+  }
+
+  .brand img {
+    width: 48px;
+  }
+
+  .brand-type {
+    font-size: 1.8rem;
+  }
+
+  .site-header[data-condensed="true"] .brand-type {
+    font-size: 1.6rem;
+  }
+
+  .brand-small {
+    font-size: 0.66rem;
   }
 
   /* iOS Safari zooms the whole page into any field set below 16px. */

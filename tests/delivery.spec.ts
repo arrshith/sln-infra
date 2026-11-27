@@ -1,5 +1,15 @@
 import { test, expect } from "@playwright/test";
 
+// The enquiry popup opens 8s into a visit; these tests are about other things.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    // Also runs in sandboxed frames (the blocked map), where storage throws.
+    try {
+      localStorage.setItem("sln-enquiry-popup", String(Date.now()));
+    } catch {}
+  });
+});
+
 test("direct enquiry shows pending, failure, and confirmed receipt without losing input", async ({
   page,
 }) => {

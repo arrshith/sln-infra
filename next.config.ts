@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // `next dev` refuses its scripts to any origin but localhost, so a phone on
+  // the LAN got the HTML with no JavaScript: no menu, no popup. Dev-only.
+  allowedDevOrigins: ["10.*.*.*", "192.168.*.*", "172.*.*.*"],
   async headers() {
     return [
       {

@@ -6,6 +6,7 @@ import { Cursor } from "@/components/cursor";
 import { PageTransition } from "@/components/page-transition";
 import { SmoothScroll } from "@/components/motion/smooth-scroll";
 import { WhatsAppCta } from "@/components/whatsapp";
+import { EnquiryPopup } from "@/components/enquiry-popup";
 import { Analytics } from "@/components/analytics";
 import { company } from "@/lib/content";
 import { siteUrl } from "@/lib/metadata";
@@ -83,6 +84,12 @@ export default function RootLayout({
         <PageTransition />
         <Cursor />
         <WhatsAppCta />
+        <EnquiryPopup
+          deliveryEnabled={Boolean(
+            process.env.ENQUIRY_WEBHOOK_URL &&
+            process.env.ENQUIRY_WEBHOOK_SECRET,
+          )}
+        />
         <Analytics />
         <script
           type="application/ld+json"

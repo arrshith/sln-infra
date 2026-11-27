@@ -14,7 +14,8 @@ export type LeadSource =
   | "contact"
   | "channel_partner"
   | "career"
-  | "whatsapp";
+  | "whatsapp"
+  | "popup";
 
 /**
  * Where a lead has reached in SLN's pipeline. Kept as a plain union so the set

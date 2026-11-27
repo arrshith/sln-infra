@@ -104,6 +104,7 @@ function pickSource(input: unknown): LeadSource {
     "channel_partner",
     "career",
     "whatsapp",
+    "popup",
   ];
   const value = (input as { source?: unknown })?.source;
   return allowed.includes(value as LeadSource)
