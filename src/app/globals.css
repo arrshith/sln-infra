@@ -4549,6 +4549,71 @@ em {
   }
 }
 
+/* Phones: touch and legibility. Nothing here changes the layout — hit areas
+   grow through padding that a matching negative margin hands straight back. */
+@media (max-width: 767px) {
+  :root {
+    --t-label: 0.6875rem;
+  }
+
+  /* iOS Safari zooms the whole page into any field set below 16px. */
+  .form-field input,
+  .form-field select,
+  .form-field textarea {
+    font-size: 1rem;
+  }
+
+  .footer-col a,
+  .footer-legal a,
+  .mobile-menu-bottom a,
+  .subtle-link,
+  .hero-scroll {
+    padding-block: 10px;
+    margin-block: -10px;
+  }
+
+  .stage-nav a {
+    padding-block: 7px;
+    margin-block: -7px;
+  }
+
+  .project-back {
+    padding-block: 10px;
+    margin-block: -10px calc(clamp(24px, 4vw, 48px) - 10px);
+  }
+
+  /* The rule under these is their border, so they only grow upward. */
+  .contact-large-link {
+    padding-top: 10px;
+    margin-top: -10px;
+  }
+
+  /* The bar keeps its height; the links take the padding the bar gives up. */
+  .project-subnav > div {
+    padding-block: 4px;
+  }
+
+  .project-subnav a {
+    padding: 12px 4px;
+    margin-inline: -4px;
+  }
+
+  .filter-buttons button,
+  .gallery-nav button,
+  .immersive-nav button,
+  .plans-nav button {
+    padding-block: 19px 20px;
+    margin-block: -7px;
+  }
+
+  /* "Prepare your enquiry" broke over two lines in a 320px form panel. The
+     button is full width here, so the gap was only ever a minimum. */
+  .button {
+    gap: 16px;
+    padding-inline: 22px 18px;
+  }
+}
+
 @media (max-width: 420px) {
   .hero-focus {
     grid-template-columns: 1fr auto;
